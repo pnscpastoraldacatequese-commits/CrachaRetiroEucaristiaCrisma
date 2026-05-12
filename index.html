@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crachás Retiro</title>
+    <title>Gerador de Crachás - Seletor</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -27,12 +27,11 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             margin-bottom: 30px;
         }
-        textarea {
+        select, textarea {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
             border: 1px solid #ccc;
-            box-sizing: border-box;
             font-family: inherit;
         }
         .btn-group { display: flex; gap: 10px; }
@@ -40,7 +39,6 @@
         .btn-primary { background: #4A90E2; color: white; }
         .btn-print { background: #27ae60; color: white; }
 
-        /* Estrutura da Folha A4 */
         .container {
             width: 21cm;
             display: flex;
@@ -57,26 +55,31 @@
             justify-content: center;
             position: relative;
             box-sizing: border-box;
-            border: 0.1mm solid #ccc; /* Linha de corte */
-            
-            /* IMAGEM DE FUNDO */
-            background-image: url('https://raw.githubusercontent.com/pnscpastoraldacatequese-commits/CrachaRetiroEucaristia/main/Retiro%201%C2%AA%20Eucaristia.png');
+            border: 0.1mm solid #ccc;
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
         }
 
+        /* Classes para trocar o fundo via JS */
+        .fundo-eucaristia { 
+            background-image: url('https://raw.githubusercontent.com/pnscpastoraldacatequese-commits/CrachaRetiroEucaristia/main/Retiro%201%C2%AA%20Eucaristia.png'); 
+        }
+        .fundo-crisma { 
+            /* Substitua pela URL correta da imagem da Crisma se for diferente desta */
+            background-image: url('https://raw.githubusercontent.com/pnscpastoraldacatequese-commits/CrachaRetiroCrisma/main/Retiro%20Crisma.png'); 
+        }
+
         .nome {
-            font-size: 40px; /* Tamanho ajustado */
+            font-size: 40px;
             font-weight: 800;
             text-align: center;
             text-transform: uppercase;
             color: #000;
-            width: 80%; /* Não deixa o texto encostar nas bordas laterais */
-            word-wrap: break-word; /* Quebra o nome se for muito longo */
+            width: 80%;
+            word-wrap: break-word;
             line-height: 1.1;
             z-index: 10;
-            /* Opcional: sombra branca suave para ler melhor sobre o desenho */
             text-shadow: 0px 0px 10px rgba(255,255,255,0.8);
         }
 
@@ -93,10 +96,19 @@
 <body>
 
     <div class="controls">
-        <label><b>1. Lista de nomes:</b></label>
-        <textarea id="inputRaw" rows="4"></textarea>
+        <label><b>1. Escolha o tipo de retiro:</b></label>
+        <select id="seletorFundo">
+            <option value="fundo-eucaristia">Retiro 1ª Eucaristia</option>
+            <option value="fundo-crisma">Retiro da Crisma</option>
+        </select>
+
+        <label><b>2. Cole os nomes completos:</b></label>
+        <textarea id="inputRaw" rows="3"></textarea>
         <button class="btn btn-primary" onclick="processarEValidar()">Processar Nomes</button>
-        <textarea id="inputFinal" rows="4"></textarea>
+        
+        <label><b>3. Nomes processados:</b></label>
+        <textarea id="inputFinal" rows="3"></textarea>
+
         <div class="btn-group">
             <button class="btn btn-print" onclick="gerarCrachas()">Gerar Visualização</button>
             <button class="btn btn-primary" style="background:#555" onclick="window.print()">Imprimir</button>
@@ -140,12 +152,14 @@
 
         function gerarCrachas() {
             const finalInput = document.getElementById('inputFinal').value;
+            const fundoSelecionado = document.getElementById('seletorFundo').value;
             const nomes = finalInput.split(/[,\n]/).map(n => n.trim()).filter(n => n.length > 0);
             const container = document.getElementById('container');
+            
             container.innerHTML = '';
             nomes.forEach(nome => {
                 const card = document.createElement('div');
-                card.className = 'cracha';
+                card.className = `cracha ${fundoSelecionado}`;
                 card.innerHTML = `<div class="nome">${nome}</div>`;
                 container.appendChild(card);
             });
